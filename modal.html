@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style>
+			*{padding: 0;margin: 0;}
+			body{width:1080px;margin: 0 auto;text-align: center;font-family: "微软雅黑";font-size: 13px;color: #111;}
+			.modal-mask{position: fixed;left: 0;top: 0;right: 0;bottom: 0;width: 100%;height: 100%;background-color: rgba(0,0,0,0.5);display: none;}
+			.modal-mask.active{display: block;}
+			.modal-dialog{position: relative;padding:15px;border-radius: 10px;background: #fff;text-align: center;margin: 0 auto;}
+			.modal-dialog-header{height:30px;line-height: 30px;border-bottom: 1px solid #999;overflow: hidden;}
+			.modal-dialog-header>p{float:left;font-size: 16px;margin-left:5px}
+			.modal-dialog-header>span{float:right;margin-right:5px;cursor: pointer;}
+			.modal-dialog-body{padding: 15px 0;text-align: left;min-height: 100px;}
+			.modal-dialog-footer{height: 30px;line-height: 30px;text-align: right;border-top: 1px solid #999;padding: 10px 0;}
+			.modal-dialog-footer button{padding: 5px 8px;margin-right:8px;cursor: pointer;background: #286090;color: #fff;border: 1px solid #ccc;}
+		</style>
+	
+	</head>
+	<body>
+		<div id="app">
+			
+			<modal width="850px" top="10%" title="标题" :isopen="isopen" @close="close" @submit="submit">
+				<div>这里是内容的啦</div>
+			</modal>
+			
+			<div @click="open">点击打开对话框</div>
+			
+			<script type="text/template" id="modal">
+				<div class="modal modal-mask" :class="{active:myisopen}" >
+					<div class="modal-dialog" :style="{width:mywidth,top:mytop}">
+						<div class="modal-dialog-header">
+							<p v-text="title"></p>
+							<span @click="close">X</span>
+						</div>
+						<div class="modal-dialog-body"><slot></slot></div>
+						<div class="modal-dialog-footer">
+							<button value="取消" @click="cancel">取消</button>
+							<button value="确认" @click="submit">确认</button>
+						</div>
+					</div>
+				</div>
+			</script>
+		</div>
+		
+		<script src="js/vue.min.js"></script>
+		<script>
+			new Vue({
+				el:"#app",
+				data:{
+					isopen:false
+				},
+				components:{
+					modal:{
+						template:"#modal",
+						props:["width","top","isopen","title"],
+						data:function(){
+							return {
+								myisopen:false,
+								mywidth:"",
+								mytop:""
+							}
+						},
+						methods:{
+							close:function(){
+								this.myisopen=false;
+								this.$emit("close");
+							},
+							cancel:function(){
+								this.close();
+								this.$emit("cancel");
+							},
+							submit:function(){
+								alert("确认关闭");
+								this.myisopen=false;
+								this.$emit("submit");
+							}
+						},
+						mounted:function(){
+							this.myisopen=this.isopen;
+							this.mywidth=this.width||"400px";
+							this.mytop=this.top||"10%";
+						},
+						watch:{
+							"isopen":function(val){
+								if(val==true){
+									this.myisopen=val;
+								}
+							}
+						}
+					}
+				},
+				methods:{
+					close:function(){
+						this.isopen=false;
+					},
+					open:function(){
+						this.isopen=true;
+					},
+					submit:function(){
+						this.isopen=false;
+					}
+				}
+			})
+		</script>
+	</body>
+</html>
